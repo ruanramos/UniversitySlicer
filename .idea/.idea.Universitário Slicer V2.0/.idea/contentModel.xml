@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\Ruan Ramos\.Rider2018.2\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\Ruan Ramos\.Rider2018.2\system\resharper-host\local\Transient\ReSharperHost\v182\SolutionCaches\_Universitário Slicer V2.0.-922644366.00" t="ExcludeRecursive" />
-    <e p="C:\Users\Ruan Ramos\Desktop\Arena\Universitário Slicer V2.0" t="IncludeRecursive">
+    <e p="C:\Users\Public\Documents\Unity Projects\Universitário Slicer V2.0" t="IncludeRecursive">
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
         <e p="Scripts" t="Include">
@@ -12,6 +10,7 @@
           <e p="pidgeon.cs" t="Include" />
           <e p="spawnner.cs" t="Include" />
           <e p="spear.cs" t="Include" />
+          <e p="SpecialEffectsController.cs" t="Include" />
           <e p="Team.cs" t="Include" />
           <e p="Watcher.cs" t="Include" />
         </e>
@@ -40,6 +39,7 @@
             <e p="EmojiOne Attribution.txt" t="Include" />
           </e>
         </e>
+        <e p="unilol.cs" t="Include" />
       </e>
       <e p="Library" t="ExcludeRecursive" />
       <e p="obj" t="ExcludeRecursive" />
@@ -49,5 +49,7 @@
       </e>
       <e p="Universitário Slicer V2.0.sln" t="IncludeFlat" />
     </e>
+    <e p="C:\Users\Ruan Ramos\.Rider2018.2\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\Ruan Ramos\.Rider2018.2\system\resharper-host\local\Transient\ReSharperHost\v182\SolutionCaches\_Universitário Slicer V2.0.1247257701.00" t="ExcludeRecursive" />
   </component>
 </project>

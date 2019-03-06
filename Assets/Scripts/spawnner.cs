@@ -5,9 +5,11 @@ using UnityEngine.Serialization;
 
 public class spawnner : MonoBehaviour
 {
+    public static bool SpawnnerActive;
+    
     public GameObject Woodpeaker;
-    public GameObject PidgeonRight;
-    public GameObject PidgeonLeft;
+    [FormerlySerializedAs("PidgeonRight")] public GameObject Pidgeon;
+    public GameObject Unilol;
     [FormerlySerializedAs("_spawnPoints")] public Transform[] SpawnPoints;
 
     public Transform[] SpawnPointsPidgeons;
@@ -17,17 +19,30 @@ public class spawnner : MonoBehaviour
     
     private const float MinDelayPidgeons = 3f;
     private const float MaxDelayPidgeons = 5f;
+    
+    private const float MinDelayUnilol = 2f;
+    private const float MaxDelayUnilol = 4f;
 
 
     private void Start()
     {
+        SpawnnerActive = true;
         StartCoroutine(SpawnWoodpeakers());
         StartCoroutine(SpawnPidgeons());
+        StartCoroutine(SpawnUnilol());
+    }
+
+    private void OnEnable()
+    {
+        SpawnnerActive = true;
+        StartCoroutine(SpawnWoodpeakers());
+        StartCoroutine(SpawnPidgeons());
+        StartCoroutine(SpawnUnilol());
     }
 
     private IEnumerator SpawnWoodpeakers()
     {
-        while (true)
+        while (SpawnnerActive)
         {
             var delay = Random.Range(MinDelay, MaxDelay);
             yield return new WaitForSeconds(delay);
@@ -35,13 +50,14 @@ public class spawnner : MonoBehaviour
             var spawnIndex = Random.Range(0, SpawnPoints.Length);
             var spawnPoint = SpawnPoints[spawnIndex];
             
-            Instantiate(Woodpeaker, spawnPoint.position, spawnPoint.rotation);
+            var go = Instantiate(Woodpeaker, spawnPoint.position, spawnPoint.rotation);
+            Destroy(go, 6f);
         }
     }
 
     private IEnumerator SpawnPidgeons()
     {
-        while (true)
+        while (SpawnnerActive)
         {
             var delay = Random.Range(MinDelayPidgeons, MaxDelayPidgeons);
             yield return new WaitForSeconds(delay);
@@ -49,7 +65,23 @@ public class spawnner : MonoBehaviour
             var spawnIndex = Random.Range(0, SpawnPointsPidgeons.Length);
             var spawnPoint = SpawnPointsPidgeons[spawnIndex];
 
-            Instantiate(PidgeonRight, spawnPoint.position, spawnPoint.rotation);
+            var go = Instantiate(Pidgeon, spawnPoint.position, spawnPoint.rotation);
+            Destroy(go, 9f);
+        }
+    }
+
+    private IEnumerator SpawnUnilol()
+    {
+        while (SpawnnerActive)
+        {
+            var delay = Random.Range(MinDelayUnilol, MaxDelayUnilol);
+            yield return new WaitForSeconds(delay);
+
+            var spawnIndex = Random.Range(0, SpawnPoints.Length);
+            var spawnPoint = SpawnPoints[spawnIndex];
+
+            var go = Instantiate(Unilol, spawnPoint.position, spawnPoint.rotation);
+            Destroy(go, 6f);
         }
     }
 }

@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 public class pidgeon : MonoBehaviour
 {
     [FormerlySerializedAs("_speed")] public float Speed;
+    public bool IsFalling;
     
     // Start is called before the first frame update
     private void Start()
@@ -16,18 +17,26 @@ public class pidgeon : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (transform.rotation.y == 0)
+        if (transform.rotation.y == 0 && !IsFalling)
         {
             transform.Translate(transform.right * Time.deltaTime * Speed);    
         }
-        else
+        else if (!(transform.rotation.y == 0) && !IsFalling)
         {
             transform.Translate(transform.right * Time.deltaTime * -Speed);
         }
+        else if (IsFalling && transform.rotation.y == 0)
+        {
+            transform.Translate(new Vector2(1,-0.9f) * Time.deltaTime * Speed);
+        }
+        else if (IsFalling && !(transform.rotation.y == 0))
+        {
+            transform.Translate(new Vector2(1,0.9f) * Time.deltaTime * -Speed);
+        }
     }
 
-    private void OnBecameInvisible()
+    public void PlayDeathSound()
     {
-        Destroy(gameObject);
+        GetComponent<AudioSource>().Play();
     }
 }

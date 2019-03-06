@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Xml;
@@ -9,16 +10,21 @@ using UnityEngine.UI;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Experimental.UIElements;
 using UnityEngine.Serialization;
-using Image = UnityEngine.Experimental.UIElements.Image;
+using Image = UnityEngine.UI.Image;
+
 
 public class blade : MonoBehaviour
 {
+    private Watcher _watcher;
+    private SpecialEffectsController _specialEffects;
+    
     private bool _isCutting;
 
     private Rigidbody2D _rb;
     private Camera _cam;
 
     public GameObject TrailPrefab;
+    private bool _canCut;
 
     private GameObject _currentBladeTrail;
 
@@ -30,78 +36,74 @@ public class blade : MonoBehaviour
 
     public Sprite DeadWoodpeaker;
 
-    private float _enelSpecial;
-    private bool _specialReady;
+    [FormerlySerializedAs("_enelSpecial")] public float EnelSpecial;
+    [FormerlySerializedAs("_specialReady")] public bool SpecialReady;
 
     public Transform SpawnnerSpear;
     public GameObject Spear;
-    private const float SpecialMax = 10f;
-
-    private GameObject _imageFill;
+    public const float SpecialMax = 1f;
 
     private ParticleSystem _lightning;
-    private GameObject _enel;
 
     public AudioClip EnelTalking;
     public AudioClip Thunder;
-    public AudioClip Music;
-    //private AudioSource _audioSource;
-    
-    
+    public AudioClip AngelSound;
 
-    // Start is called before the first frame update
+    private spawnner _spawnnerScript;
+
     private void Start()
+    {
+        GetInitialReferences();
+    }
+
+    private void GetInitialReferences()
     {
         _rb = GetComponent<Rigidbody2D>();
         _cam = Camera.main;
         _bladeCollider = GetComponent<CircleCollider2D>();
-        _enelSpecial = 0;
-        _imageFill = GameObject.Find("ImageFill");
+        EnelSpecial = 0;
         _lightning = GameObject.Find("lightning").GetComponent<ParticleSystem>();
-        _enel = GameObject.Find("Enel");
+        _watcher = GameObject.Find("Watcher").GetComponent<Watcher>();
+        _spawnnerScript = GameObject.Find("Spawnner Woodpeaker").GetComponent<spawnner>();
+        _specialEffects = _watcher.GetComponent<SpecialEffectsController>();
+
+        _canCut = true;
         //_audioSource = GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            StartCutting();
-        }
-        else if (Input.GetMouseButtonUp(0))
-        {
-            StopCutting();
-        }
+        GetBladeInput();
         if (_isCutting)
         {
             UpdateCut();
         }
 
         CheckSpecial();
-        UpdateSpecialImage();
+        _specialEffects.UpdateSpecialImage();
     }
 
-    private void UpdateSpecialImage()
+    private void GetBladeInput()
     {
-        _imageFill.GetComponent<UnityEngine.UI.Image>().fillAmount = _enelSpecial / SpecialMax;
+        if (Input.GetMouseButtonDown(0) && _canCut)
+        {
+            StartCutting();
+        }
+        else if (Input.GetMouseButtonUp(0) && _canCut && _isCutting)
+        {
+            StopCutting();
+        }
     }
 
     private void CheckSpecial()
     {
-        if (_enelSpecial >= SpecialMax)
-        {
-            _specialReady = true;
-        }
-        else
-        {
-            _specialReady = false;
-        }
+        SpecialReady = EnelSpecial >= SpecialMax;
 
-        if (_specialReady)
+        if (SpecialReady)
         {
             GameObject.Find("lightning 2").GetComponent<ParticleSystem>().Play();
-            if (Input.GetMouseButtonDown(1))
+            var audios = GetComponents<AudioSource>();
+            if (Input.GetMouseButtonDown(1) && GameObject.Find("Nacib").GetComponent<Image>().color.a <= 0 && audios[2].isPlaying)
             {
                 StartCoroutine(FireSpecial());
             }
@@ -114,19 +116,10 @@ public class blade : MonoBehaviour
 
     private IEnumerator FireSpecial()
     {
-        GameObject.Find("Spawnner Woodpeaker").GetComponent<spawnner>().enabled = false;
-        
-        _enelSpecial = 0;
-        _lightning.Play();
-        var audios = GetComponents<AudioSource>();
-        audios[0].clip = EnelTalking;
-        audios[0].Play();
-        audios[1].clip = Thunder;
-        audios[1].Play();
-        audios[2].Pause();
-        StartCoroutine(EnelAppear());
-        //StartCoroutine(TextAppear());
-        //StartCoroutine(PanelAppear());
+        StopMusicPlaySpecialEffect();
+        StartCoroutine(DeactivateBlade());
+        _specialEffects.EnelAppear();
+        StartCoroutine(SpecialEffectsController.TextAppear("Quando o Enel sair, esse time acaba..." ,0.1f, 90));
         
 //        for (var i = 0; i <= 110; i += 10)
 //        {
@@ -135,67 +128,35 @@ public class blade : MonoBehaviour
 //            spear.transform.Rotate(direction);
 //            yield return new WaitForSeconds(0.2f);
 //        }
-        yield return new WaitForSeconds(3f);
-        GameObject.Find("Spawnner Woodpeaker").GetComponent<spawnner>().enabled = true;
+        yield return null;
+        //GameObject.Find("Spawnner Woodpeaker").GetComponent<spawnner>().enabled = true;
     }
 
-    private static IEnumerator TextAppear()
+    private void StopMusicPlaySpecialEffect()
     {
-        var text = GameObject.Find("Text").GetComponent<TextMeshPro>();
-        //text.color = new Color(text.color.r, text.color.g, text.color.b, 0);
-        text.enabled = true;
-        while (text.color.a <= 1)
-        {
-            text.color = new Color(text.color.r, text.color.g, text.color.b, text.color.a + Time.deltaTime);
-            yield return new WaitForSeconds(0.1f);
-        }
-        while (text.color.a >= 0)
-        {
-            text.color = new Color(text.color.r, text.color.g, text.color.b, text.color.a - Time.deltaTime);
-            yield return new WaitForSeconds(0.1f);
-        }
-        yield return new WaitForSeconds(1f);
-        text.enabled = false;
-    }
-
-    private static IEnumerator PanelAppear()
-    {
-        var panel = GameObject.Find("Panel").GetComponent<UnityEngine.UI.Image>();
-        //panel.color  = new Color(panel.color.r, panel.color.g, panel.color.b, 0);
-        panel.enabled = true;
-        while (panel.color.a <= (float) 100/255)
-        {
-            panel.color = new Color(panel.color.r, panel.color.g, panel.color.b, panel.color.a + Time.deltaTime);
-            yield return new WaitForSeconds(0.1f);
-        }
-        while (panel.color.a >= 0)
-        {
-            panel.color = new Color(panel.color.r, panel.color.g, panel.color.b, panel.color.a - Time.deltaTime);
-            yield return new WaitForSeconds(0.1f);
-        }
-        yield return new WaitForSeconds(1f);
-        panel.enabled = false;
-    }
-
-    private IEnumerator EnelAppear()
-    {
-        var image = _enel.GetComponent<UnityEngine.UI.Image>();
-        image.enabled = true;
-        while (image.color.a <= (float) 110/255)
-        {
-            image.color = new Color(image.color.r, image.color.g, image.color.b, image.color.a + Time.deltaTime);
-            yield return new WaitForSeconds(0.1f);
-        }
-        while (image.color.a >= 0)
-        {
-            image.color = new Color(image.color.r, image.color.g, image.color.b, image.color.a - Time.deltaTime);
-            yield return new WaitForSeconds(0.1f);
-        }
-        yield return new WaitForSeconds(1f);
-        image.enabled = false;
+        _spawnnerScript = Resources.Load<spawnner>("Spawnner Woodpeaker").GetComponent<spawnner>();
+        _spawnnerScript.enabled = false;
+        
+        EnelSpecial = 0;
+        _lightning.Play();
         var audios = GetComponents<AudioSource>();
-        audios[1].Stop();
-        audios[2].UnPause();
+        audios[0].clip = EnelTalking;
+        audios[0].Play();
+        audios[1].clip = Thunder;
+        audios[1].Play();
+        audios[2].Pause();
+    }
+    
+    private void StopMusicPlayNacibSoundEffect()
+    {
+        _spawnnerScript = Resources.Load<spawnner>("Spawnner Woodpeaker").GetComponent<spawnner>();
+        _spawnnerScript.enabled = false;
+        
+        EnelSpecial = SpecialMax;
+        var audios = GetComponents<AudioSource>();
+        audios[0].clip = AngelSound;
+        audios[0].Play();
+        audios[2].Pause();
     }
     
     private void UpdateCut()
@@ -239,21 +200,55 @@ public class blade : MonoBehaviour
     {
         if (go.CompareTag("Woodpeakear"))
         {
-            var sr = go.GetComponent<SpriteRenderer>();
-            sr.sprite = DeadWoodpeaker;
-            sr.color = new Color(1, 1, 1, 0.5f);
-            go.GetComponent<CapsuleCollider2D>().enabled = false;
-            var rb = go.GetComponent<Rigidbody2D>();
-            rb.gravityScale = 0.3f;
-            rb.velocity = Vector2.zero;
-            rb.AddForce(Vector2.down * 5f, ForceMode2D.Impulse);
-            go.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
-            _enelSpecial += 1;
-            Destroy(go, 2f);
+            KillWoodpeaker(go);
+            _specialEffects.UpdateSpecialQuantity(1);
         }
         else if (go.CompareTag("pidgeon"))
         {
-            Destroy(go);
+            KillPidgeon(go);
+            _watcher.GivePenalty();
         }
+        else if (go.CompareTag("unilol"))
+        {
+            StopCutting();
+            StopMusicPlayNacibSoundEffect();
+            _specialEffects.NacibApear(go);
+            StartCoroutine(DeactivateBlade());
+        }
+    }
+
+    public void KillWoodpeaker(GameObject go)
+    {
+        Watcher.Score += 100;
+        
+        var sr = go.GetComponent<SpriteRenderer>();
+        sr.sprite = DeadWoodpeaker;
+        sr.color = new Color(1, 1, 1, 0.5f);
+        go.GetComponent<CapsuleCollider2D>().enabled = false;
+        var rb = go.GetComponent<Rigidbody2D>();
+        rb.gravityScale = 0.3f;
+        rb.velocity = Vector2.zero;
+        rb.AddForce(Vector2.down * 5f, ForceMode2D.Impulse);
+        go.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+        Destroy(go, 2f);
+    }
+
+    private static void KillPidgeon(GameObject go)
+    {
+        Watcher.Score += 100;
+        
+        var pidgeonScript = go.GetComponent<pidgeon>();
+        pidgeonScript.IsFalling = true;
+        go.GetComponent<BoxCollider2D>().enabled = false;
+        pidgeonScript.PlayDeathSound();
+        Destroy(go, 3f);
+    }
+
+    private IEnumerator DeactivateBlade()
+    {
+        var audios = GetComponents<AudioSource>();
+        _canCut = false;
+        yield return new WaitUntil(() => !audios[0].isPlaying);
+        _canCut = true;
     }
 }
