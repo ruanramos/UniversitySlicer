@@ -11,6 +11,7 @@
           <e p="spawnner.cs" t="Include" />
           <e p="spear.cs" t="Include" />
           <e p="SpecialEffectsController.cs" t="Include" />
+          <e p="SpecialsController.cs" t="Include" />
           <e p="Team.cs" t="Include" />
           <e p="Watcher.cs" t="Include" />
         </e>

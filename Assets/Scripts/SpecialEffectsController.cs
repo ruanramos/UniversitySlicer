@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -7,27 +8,99 @@ using UnityEngine.UI;
 public class SpecialEffectsController : MonoBehaviour
 {
     private GameObject _enel;
-    private GameObject _imageFill;
-    private blade _blade;
+    private GameObject _imageDarkEnel;
+    private GameObject _imageDarkFrozen;
+    private GameObject _imageDarkDavid;
+    private GameObject _imageFillEnel;
+    private GameObject _imageFillFrozen;
+    private GameObject _imageFillDavid;
     
+    private blade _blade;
+
+    public Sprite EnelArmsCrossed;
+    public Sprite FrozenArmsCrossed;
+    public Sprite SolrakArmsCrossed;
+
+    private void Awake()
+    {
+        _blade = GameObject.Find("Blade").GetComponent<blade>();
+        _imageFillEnel = GameObject.Find("ImageFillEnel");
+        _imageFillFrozen = GameObject.Find("ImageFillFrozen");
+        _imageDarkEnel = GameObject.Find("ImageEnelDark");
+        _imageDarkFrozen = GameObject.Find("ImageFrozenDark");
+        _imageFillDavid = GameObject.Find("ImageFillDavid");
+        _imageDarkDavid = GameObject.Find("ImageDavidDark");
+        
+        _imageDarkEnel.SetActive(false);
+        _imageFillEnel.SetActive(false);
+        _imageDarkFrozen.SetActive(false);
+        _imageFillFrozen.SetActive(false);
+        _imageFillDavid.SetActive(false);
+        _imageDarkDavid.SetActive(false);
+    }
+
     private void Start()
     {
         _enel = GameObject.Find("Enel");
-        _blade = GameObject.Find("Blade").GetComponent<blade>();
-        _imageFill = GameObject.Find("ImageFill");
     }
     
     public void UpdateSpecialImage()
     {
-        _imageFill.GetComponent<Image>().fillAmount = _blade.EnelSpecial / blade.SpecialMax;
+        switch (SpecialsController.SpecialSelected)
+        {
+            case SpecialsController.Special.Enel:
+                _imageDarkFrozen.SetActive(false);
+                _imageFillFrozen.SetActive(false);
+                _imageFillDavid.SetActive(false);
+                _imageDarkDavid.SetActive(false);
+                _imageDarkEnel.SetActive(true);
+                _imageFillEnel.SetActive(true);
+                _imageFillEnel.GetComponent<Image>().fillAmount = _blade.SpecialQuantity / blade.SpecialMax;
+                break;
+            case SpecialsController.Special.Frozen:
+                _imageDarkEnel.SetActive(false);
+                _imageFillEnel.SetActive(false);
+                _imageFillDavid.SetActive(false);
+                _imageDarkDavid.SetActive(false);
+                _imageDarkFrozen.SetActive(true);
+                _imageFillFrozen.SetActive(true);
+                _imageFillFrozen.GetComponent<Image>().fillAmount = _blade.SpecialQuantity / blade.SpecialMax;
+                break;
+            case SpecialsController.Special.David:
+                _imageDarkEnel.SetActive(false);
+                _imageFillEnel.SetActive(false);
+                _imageFillDavid.SetActive(true);
+                _imageDarkDavid.SetActive(true);
+                _imageDarkFrozen.SetActive(false);
+                _imageFillFrozen.SetActive(false);
+                _imageFillDavid.GetComponent<Image>().fillAmount = _blade.SpecialQuantity / blade.SpecialMax;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
     
     public void EnelAppear()
     {
         var image = _enel.GetComponent<Image>();
+        image.sprite = EnelArmsCrossed;
         StartCoroutine(Fade(image, 0.1f, 110f));
         StartCoroutine(Watcher.StopSpawn(6f));
-
+    }
+    
+    public void FrozenAppear()
+    {
+        var image = _enel.GetComponent<Image>();
+        image.sprite = FrozenArmsCrossed;
+        StartCoroutine(Fade(image, 0.1f, 110f));
+        StartCoroutine(Watcher.StopSpawn(7f));
+    }
+    public void SolrakAppear()
+    {
+        var image = _enel.GetComponent<Image>();
+        image.sprite = SolrakArmsCrossed;
+        StartCoroutine(Fade(image, 0.1f, 110f));
+        StartCoroutine(Watcher.StopSpawn(7f));
     }
     
     public void NacibApear(GameObject go)
@@ -44,7 +117,7 @@ public class SpecialEffectsController : MonoBehaviour
     
     public void UpdateSpecialQuantity(float quantity)
     {
-        _blade.EnelSpecial = quantity;
+        _blade.SpecialQuantity += quantity;
     }
     
     private static IEnumerator PanelAppear()

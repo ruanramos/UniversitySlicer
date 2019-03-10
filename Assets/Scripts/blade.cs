@@ -36,18 +36,23 @@ public class blade : MonoBehaviour
 
     public Sprite DeadWoodpeaker;
 
-    [FormerlySerializedAs("_enelSpecial")] public float EnelSpecial;
+    [FormerlySerializedAs("EnelSpecial")] [FormerlySerializedAs("_enelSpecial")] public float SpecialQuantity;
     [FormerlySerializedAs("_specialReady")] public bool SpecialReady;
 
     public Transform SpawnnerSpear;
     public GameObject Spear;
-    public const float SpecialMax = 1f;
+    public const float SpecialMax = 100f;
 
     private ParticleSystem _lightning;
+    private ParticleSystem _snow;
+    private ParticleSystem _shacos;
 
     public AudioClip EnelTalking;
+    public AudioClip LetItGo;
     public AudioClip Thunder;
+    public AudioClip Snow;
     public AudioClip AngelSound;
+    public AudioClip Malandro;
 
     private spawnner _spawnnerScript;
 
@@ -61,8 +66,10 @@ public class blade : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _cam = Camera.main;
         _bladeCollider = GetComponent<CircleCollider2D>();
-        EnelSpecial = 0;
+        SpecialQuantity = 0;
         _lightning = GameObject.Find("lightning").GetComponent<ParticleSystem>();
+        _snow = GameObject.Find("snow").GetComponent<ParticleSystem>();
+        _shacos = GameObject.Find("shacos").GetComponent<ParticleSystem>();
         _watcher = GameObject.Find("Watcher").GetComponent<Watcher>();
         _spawnnerScript = GameObject.Find("Spawnner Woodpeaker").GetComponent<spawnner>();
         _specialEffects = _watcher.GetComponent<SpecialEffectsController>();
@@ -78,8 +85,11 @@ public class blade : MonoBehaviour
         {
             UpdateCut();
         }
-
         CheckSpecial();
+        if (Time.time - _timeLastCut >= 0.5f)
+        {
+            Watcher.ComboCount = 1;
+        }
         _specialEffects.UpdateSpecialImage();
     }
 
@@ -97,54 +107,103 @@ public class blade : MonoBehaviour
 
     private void CheckSpecial()
     {
-        SpecialReady = EnelSpecial >= SpecialMax;
+        SpecialReady = SpecialQuantity >= SpecialMax;
 
         if (SpecialReady)
         {
-            GameObject.Find("lightning 2").GetComponent<ParticleSystem>().Play();
+            switch (SpecialsController.SpecialSelected)
+            {
+                case SpecialsController.Special.Enel:
+                    GameObject.Find("lightning 2").GetComponent<ParticleSystem>().Play();
+                    GameObject.Find("snow (1)").GetComponent<ParticleSystem>().Stop();
+                    GameObject.Find("lightning 3").GetComponent<ParticleSystem>().Stop();
+                    break;
+                case SpecialsController.Special.Frozen:
+                    GameObject.Find("snow (1)").GetComponent<ParticleSystem>().Play();
+                    GameObject.Find("lightning 2").GetComponent<ParticleSystem>().Stop();
+                    GameObject.Find("lightning 3").GetComponent<ParticleSystem>().Stop();
+                    break;
+                case SpecialsController.Special.David:
+                    GameObject.Find("snow (1)").GetComponent<ParticleSystem>().Stop();
+                    GameObject.Find("lightning 2").GetComponent<ParticleSystem>().Stop();
+                    GameObject.Find("lightning 3").GetComponent<ParticleSystem>().Play();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             var audios = GetComponents<AudioSource>();
             if (Input.GetMouseButtonDown(1) && GameObject.Find("Nacib").GetComponent<Image>().color.a <= 0 && audios[2].isPlaying)
             {
-                StartCoroutine(FireSpecial());
+                StartCoroutine(FireSpecial(SpecialsController.SpecialSelected));
             }
         }
         else
         {
             GameObject.Find("lightning 2").GetComponent<ParticleSystem>().Stop();
+            GameObject.Find("snow (1)").GetComponent<ParticleSystem>().Stop();
+            GameObject.Find("lightning 3").GetComponent<ParticleSystem>().Stop();
         }
     }
 
-    private IEnumerator FireSpecial()
+    private IEnumerator FireSpecial(SpecialsController.Special id)
     {
-        StopMusicPlaySpecialEffect();
-        StartCoroutine(DeactivateBlade());
-        _specialEffects.EnelAppear();
-        StartCoroutine(SpecialEffectsController.TextAppear("Quando o Enel sair, esse time acaba..." ,0.1f, 90));
+        StopMusicPlaySpecialEffect(id);
+        if (SpecialsController.SpecialSelected != SpecialsController.Special.Frozen)
+        {
+            StartCoroutine(DeactivateBlade());
+        }
         
-//        for (var i = 0; i <= 110; i += 10)
-//        {
-//            var direction = new Vector3(0, 0, -i);
-//            var spear = Instantiate(Spear, SpawnnerSpear.position, transform.rotation);
-//            spear.transform.Rotate(direction);
-//            yield return new WaitForSeconds(0.2f);
-//        }
+
+        switch (id)
+        {
+            case SpecialsController.Special.Enel:
+                _specialEffects.EnelAppear();
+                StartCoroutine(SpecialEffectsController.TextAppear("Quando o Enel sair, esse time acaba..." ,0.08f, 190));
+                break;
+            case SpecialsController.Special.Frozen:
+                _specialEffects.FrozenAppear();
+                StartCoroutine(SpecialEffectsController.TextAppear("Frozen vai com calma no let it go..." ,0.08f, 190));
+                break;
+            case SpecialsController.Special.David:
+                _specialEffects.SolrakAppear();
+                StartCoroutine(SpecialEffectsController.TextAppear("Solrak foi pro unilol no seu lugar, perdeu seu especial" ,0.08f, 190));
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(id), id, null);
+        }
+        
         yield return null;
-        //GameObject.Find("Spawnner Woodpeaker").GetComponent<spawnner>().enabled = true;
     }
 
-    private void StopMusicPlaySpecialEffect()
+    private void StopMusicPlaySpecialEffect(SpecialsController.Special id)
     {
         _spawnnerScript = Resources.Load<spawnner>("Spawnner Woodpeaker").GetComponent<spawnner>();
         _spawnnerScript.enabled = false;
-        
-        EnelSpecial = 0;
-        _lightning.Play();
+        SpecialQuantity = 0;
         var audios = GetComponents<AudioSource>();
-        audios[0].clip = EnelTalking;
-        audios[0].Play();
-        audios[1].clip = Thunder;
-        audios[1].Play();
+        
+        switch (id)
+        {
+            case SpecialsController.Special.Enel:
+                _lightning.Play();
+                audios[0].clip = EnelTalking;
+                audios[1].clip = Thunder;
+                break;
+            case SpecialsController.Special.Frozen:
+                _snow.Play();
+                audios[0].clip = LetItGo;
+                audios[1].clip = Snow;
+                break;
+            case SpecialsController.Special.David:
+                _shacos.Play();
+                audios[0].clip = Malandro;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(id), id, null);
+        }
         audios[2].Pause();
+        audios[0].Play();
+        audios[1].Play();       
     }
     
     private void StopMusicPlayNacibSoundEffect()
@@ -152,7 +211,7 @@ public class blade : MonoBehaviour
         _spawnnerScript = Resources.Load<spawnner>("Spawnner Woodpeaker").GetComponent<spawnner>();
         _spawnnerScript.enabled = false;
         
-        EnelSpecial = SpecialMax;
+        SpecialQuantity = SpecialMax;
         var audios = GetComponents<AudioSource>();
         audios[0].clip = AngelSound;
         audios[0].Play();
@@ -196,12 +255,30 @@ public class blade : MonoBehaviour
         Cut(other.gameObject);
     }
 
+    private float _timeOfCut;
+    private float _timeLastCut;
+    
+    
     private void Cut(GameObject go)
     {
         if (go.CompareTag("Woodpeakear"))
         {
+            _timeLastCut = _timeOfCut;
+            _timeOfCut = Time.time;
+            if (_timeOfCut - _timeLastCut <= 0.5f)
+            {
+                Watcher.ComboCount += 1;
+            }
+            else if (Time.time - _timeLastCut >= 0.5f)
+            {
+                Watcher.ComboCount = 1;
+            }
+            else
+            {
+                Watcher.ComboCount = 1;
+            }
             KillWoodpeaker(go);
-            _specialEffects.UpdateSpecialQuantity(1);
+            _specialEffects.UpdateSpecialQuantity(Watcher.ComboCount);
         }
         else if (go.CompareTag("pidgeon"))
         {
@@ -219,7 +296,7 @@ public class blade : MonoBehaviour
 
     public void KillWoodpeaker(GameObject go)
     {
-        Watcher.Score += 100;
+        Watcher.Score += 100 * Watcher.ComboCount;
         
         var sr = go.GetComponent<SpriteRenderer>();
         sr.sprite = DeadWoodpeaker;
@@ -235,7 +312,8 @@ public class blade : MonoBehaviour
 
     private static void KillPidgeon(GameObject go)
     {
-        Watcher.Score += 100;
+        Watcher.Score -= 100 * Watcher.ComboCount;
+        Watcher.ComboCount = 1;
         
         var pidgeonScript = go.GetComponent<pidgeon>();
         pidgeonScript.IsFalling = true;

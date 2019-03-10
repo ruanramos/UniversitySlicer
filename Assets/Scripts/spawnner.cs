@@ -15,13 +15,13 @@ public class spawnner : MonoBehaviour
     public Transform[] SpawnPointsPidgeons;
 
     private const float MinDelay = 0.01f;
-    private const float MaxDelay = 0.7f;
+    private const float MaxDelay = 0.5f;
     
     private const float MinDelayPidgeons = 3f;
     private const float MaxDelayPidgeons = 5f;
     
-    private const float MinDelayUnilol = 2f;
-    private const float MaxDelayUnilol = 4f;
+    private const float MinDelayUnilol = 15f;
+    private const float MaxDelayUnilol = 30f;
 
 
     private void Start()

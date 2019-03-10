@@ -10,9 +10,12 @@ public class Watcher : MonoBehaviour
     private GameObject _redPanel;
     private blade _blade;
     private ParticleSystem _redLightning;
-    private TextMeshProUGUI _text;
+    private TextMeshProUGUI _scoreText;
+    private TextMeshProUGUI _comboText;
 
     public static int Score;
+
+    public static int ComboCount;
     
     //TODO SCORE AND COMBO MECHANIC
     // Start is called before the first frame update
@@ -21,18 +24,21 @@ public class Watcher : MonoBehaviour
         _redPanel = GameObject.Find("red_panel");
         _blade = GameObject.Find("Blade").GetComponent<blade>();
         _redLightning = GameObject.Find("red_lightning").GetComponent<ParticleSystem>();
-        _text = GameObject.Find("Score").GetComponent<TextMeshProUGUI>();
+        _scoreText = GameObject.Find("Score").GetComponent<TextMeshProUGUI>();
+        _comboText = GameObject.Find("Combo").GetComponent<TextMeshProUGUI>();
+        ComboCount = 1;
     }
 
 
     private void Update()
     {
-        _text.text = "Score: " + Score;
+        _scoreText.text = "Score: " + Score;
+        _comboText.text = "X" + ComboCount;
     }
 
     public void GivePenalty()
     {
-        _blade.EnelSpecial = 0;
+        _blade.SpecialQuantity = 0;
         StartCoroutine(BlinkRedLight());
         _redLightning.Play();
     }
@@ -53,4 +59,6 @@ public class Watcher : MonoBehaviour
         yield return new WaitForSeconds(seconds);
         spawnner.SetActive(true);
     }
+    
+    
 }

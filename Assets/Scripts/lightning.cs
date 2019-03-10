@@ -13,9 +13,40 @@ public class lightning : MonoBehaviour
 
     private void OnParticleCollision(GameObject other)
     {
-        if (!other.CompareTag("pidgeon"))
+        if (gameObject.name == "lightning")
         {
-            _bladeScript.KillWoodpeaker(other);   
-        }       
+            if (!other.CompareTag("pidgeon"))
+            {
+                _bladeScript.KillWoodpeaker(other);   
+            }    
+        }
+        else if (gameObject.name == "snow")
+        {
+            FreezeObjects();
+        }
+               
+    }
+    
+    private static void FreezeObjects()
+    {
+        var woodpeakers = GameObject.FindGameObjectsWithTag("Woodpeakear");
+        var pidgeons = GameObject.FindGameObjectsWithTag("pidgeon");
+        var unilols = GameObject.FindGameObjectsWithTag("unilol");
+        foreach (var pidgeon in pidgeons)
+        {
+            pidgeon.GetComponent<pidgeon>().Speed = 0;
+        }
+        foreach (var wp in woodpeakers)
+        {
+            wp.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
+            wp.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+            wp.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
+        }
+        foreach (var unilol in unilols)
+        {
+            unilol.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
+            unilol.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+            unilol.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
+        }
     }
 }
