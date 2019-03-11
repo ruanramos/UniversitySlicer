@@ -314,6 +314,7 @@ public class blade : MonoBehaviour
     {
         Watcher.Score -= 100 * Watcher.ComboCount;
         Watcher.ComboCount = 1;
+        Watcher.PidgeonsKilled++;
         
         var pidgeonScript = go.GetComponent<pidgeon>();
         pidgeonScript.IsFalling = true;

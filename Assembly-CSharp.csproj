@@ -54,6 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\SceneController.cs" />
     <Compile Include="Assets\Scripts\blade.cs" />
     <Compile Include="Assets\Scripts\lightning.cs" />
     <Compile Include="Assets\Scripts\pidgeon.cs" />
