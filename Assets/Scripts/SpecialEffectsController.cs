@@ -92,6 +92,7 @@ public class SpecialEffectsController : MonoBehaviour
     {
         var image = _enel.GetComponent<Image>();
         image.sprite = FrozenArmsCrossed;
+        Watcher.ComboTimeLimit = 3f;
         StartCoroutine(Fade(image, 0.1f, 110f));
         StartCoroutine(Watcher.StopSpawn(7f));
     }
@@ -118,25 +119,6 @@ public class SpecialEffectsController : MonoBehaviour
     public void UpdateSpecialQuantity(float quantity)
     {
         _blade.SpecialQuantity += quantity;
-    }
-    
-    private static IEnumerator PanelAppear()
-    {
-        var panel = GameObject.Find("Panel").GetComponent<Image>();
-        panel.color  = new Color(panel.color.r, panel.color.g, panel.color.b, 0);
-        panel.enabled = true;
-        while (panel.color.a <= (float) 100/255)
-        {
-            panel.color = new Color(panel.color.r, panel.color.g, panel.color.b, panel.color.a + Time.deltaTime);
-            yield return new WaitForSeconds(0.1f);
-        }
-        while (panel.color.a >= 0)
-        {
-            panel.color = new Color(panel.color.r, panel.color.g, panel.color.b, panel.color.a - Time.deltaTime);
-            yield return new WaitForSeconds(0.1f);
-        }
-        yield return new WaitForSeconds(1f);
-        panel.enabled = false;
     }
     
     public static IEnumerator Fade(Image image, float delay, float limit)

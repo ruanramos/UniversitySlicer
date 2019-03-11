@@ -38,10 +38,8 @@ public class blade : MonoBehaviour
 
     [FormerlySerializedAs("EnelSpecial")] [FormerlySerializedAs("_enelSpecial")] public float SpecialQuantity;
     [FormerlySerializedAs("_specialReady")] public bool SpecialReady;
-
-    public Transform SpawnnerSpear;
-    public GameObject Spear;
-    public const float SpecialMax = 100f;
+    
+    public const float SpecialMax = 150f;
 
     private ParticleSystem _lightning;
     private ParticleSystem _snow;
@@ -186,6 +184,7 @@ public class blade : MonoBehaviour
         {
             case SpecialsController.Special.Enel:
                 _lightning.Play();
+                Watcher.Score += 500 * GameObject.FindGameObjectsWithTag("Woodpeakear").Length;
                 audios[0].clip = EnelTalking;
                 audios[1].clip = Thunder;
                 break;
@@ -265,11 +264,11 @@ public class blade : MonoBehaviour
         {
             _timeLastCut = _timeOfCut;
             _timeOfCut = Time.time;
-            if (_timeOfCut - _timeLastCut <= 0.5f)
+            if (_timeOfCut - _timeLastCut <= Watcher.ComboTimeLimit)
             {
                 Watcher.ComboCount += 1;
             }
-            else if (Time.time - _timeLastCut >= 0.5f)
+            else if (Time.time - _timeLastCut >= Watcher.ComboTimeLimit)
             {
                 Watcher.ComboCount = 1;
             }

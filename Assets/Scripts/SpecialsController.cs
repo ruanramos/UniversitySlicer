@@ -23,6 +23,11 @@ public class SpecialsController : MonoBehaviour
     private void Update()
     {
         SpecialsInput();
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            PlayerPrefs.SetInt("HS", 0);
+        }
     }
 
     private static void SpecialsInput()

@@ -19,6 +19,7 @@ public class Watcher : MonoBehaviour
     private float _timePlayed;
 
     public static int ComboCount;
+    public static float ComboTimeLimit;
 
     public static int PidgeonsKilled;
 
@@ -40,6 +41,8 @@ public class Watcher : MonoBehaviour
         _comboText = GameObject.Find("Combo").GetComponent<TextMeshProUGUI>();
         ComboCount = 1;
         PidgeonsKilled = 0;
+        ComboTimeLimit = 0.5f;
+        Score = 0;
     }
 
 
@@ -80,24 +83,18 @@ public class Watcher : MonoBehaviour
 
     private static void GameOver()
     {
-        Debug.Log(Score);
         Score += (int) Time.time * 500;
-        //Score *= (int) (Time.time/10);
-        Debug.Log(Score);
-        Debug.Log(PlayerPrefs.GetInt("Score", 0));
-        if (Score > PlayerPrefs.GetInt("Score", 0))
+        if (Score > PlayerPrefs.GetInt("Hs", 0))
         {
-            PlayerPrefs.SetInt("Score", Score);
+            PlayerPrefs.SetInt("Hs", Score);
             PlayerPrefs.SetString("Highscore", "yes");
-            Debug.Log("ENTROU AQUI");
         }
         else
         {
             PlayerPrefs.SetString("Highscore", "no");
+            PlayerPrefs.SetInt("Score", Score);    
         }
-
-        Debug.Log(PlayerPrefs.GetInt("Score", 0));
-        Debug.Log(PlayerPrefs.GetString("Highscore", "yes"));
+        
         SceneManager.LoadScene("Final Scene");
     }
 
