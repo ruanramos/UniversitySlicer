@@ -81,7 +81,15 @@ public class blade : MonoBehaviour
         GetBladeInput();
         if (_isCutting)
         {
-            UpdateCut();
+            if (Input.touchCount > 0)
+            {
+                UpdateCutMobile();
+            }
+//            else
+//            {
+//                UpdateCut();    
+//            }
+            
         }
         CheckSpecial();
         if (Time.time - _timeLastCut >= 0.5f)
@@ -93,13 +101,28 @@ public class blade : MonoBehaviour
 
     private void GetBladeInput()
     {
-        if (Input.GetMouseButtonDown(0) && _canCut)
+//        if (Input.GetMouseButtonDown(0) && _canCut)
+//        {
+//            StartCutting();
+//        }
+//        else if (Input.GetMouseButtonUp(0) && _canCut && _isCutting)
+//        {
+//            StopCutting();
+//        }
+        
+        // touch input
+
+        if (Input.touchCount > 0)
         {
-            StartCutting();
-        }
-        else if (Input.GetMouseButtonUp(0) && _canCut && _isCutting)
-        {
-            StopCutting();
+            var touch = Input.GetTouch(0);
+            if (Input.GetTouch(0).phase == TouchPhase.Began && _canCut)
+            {
+                StartCuttingMobile();
+            }
+            else if (touch.phase == TouchPhase.Ended)
+            {
+                StopCutting();
+            }
         }
     }
 
@@ -221,6 +244,15 @@ public class blade : MonoBehaviour
     {
         Vector2 newPosition = _cam .ScreenToWorldPoint(Input.mousePosition);
         _rb.position = newPosition;
+        var velocity = (newPosition - _previousPosition).magnitude / Time.deltaTime;
+        _bladeCollider.enabled = velocity > MinCuttingVelocity;
+        _previousPosition = newPosition;
+    }
+    
+    private void UpdateCutMobile()
+    {
+        Vector2 newPosition = _cam .ScreenToWorldPoint(Input.GetTouch(0).position);
+        _rb.position = newPosition;
         var velocity = (newPosition - _previousPosition).magnitude * Time.deltaTime;
         _bladeCollider.enabled = velocity > MinCuttingVelocity;
         _previousPosition = newPosition;
@@ -229,20 +261,32 @@ public class blade : MonoBehaviour
     private void StartCutting()
     {
         _isCutting = true;
-        _rb.position = _cam .ScreenToWorldPoint(Input.mousePosition);
+        _rb.position = _cam.ScreenToWorldPoint(Input.mousePosition);
         transform.position = _rb.position;
         _currentBladeTrail = Instantiate(TrailPrefab, transform);
-        _previousPosition = _cam .ScreenToWorldPoint(Input.mousePosition);
+        _previousPosition = _cam.ScreenToWorldPoint(Input.mousePosition);
+        _bladeCollider.enabled = false;
+    }
+    
+    private void StartCuttingMobile()
+    {
+        _isCutting = true;
+        _rb.position = _cam.ScreenToWorldPoint(Input.GetTouch(0).position);
+        transform.position = _rb.position;
+        _currentBladeTrail = Instantiate(TrailPrefab, transform);
+        _previousPosition = _cam.ScreenToWorldPoint(Input.GetTouch(0).position);
         _bladeCollider.enabled = false;
     }
 
     private void StopCutting()
     {
         _isCutting = false;
-        _currentBladeTrail.transform.SetParent(null);
-        Destroy(_currentBladeTrail, 2f);
-        _bladeCollider.enabled = false;
-    }
+        if (_currentBladeTrail != null)
+        {
+            _currentBladeTrail.transform.SetParent(null);
+            Destroy(_currentBladeTrail, 2f);
+        }
+        _bladeCollider.enabled = false;    }
 
     private void OnCollisionEnter2D(Collision2D other)
     {
@@ -293,10 +337,12 @@ public class blade : MonoBehaviour
         }
     }
 
+    
+
     public void KillWoodpeaker(GameObject go)
     {
         Watcher.Score += 100 * Watcher.ComboCount;
-        
+
         var sr = go.GetComponent<SpriteRenderer>();
         sr.sprite = DeadWoodpeaker;
         sr.color = new Color(1, 1, 1, 0.5f);
@@ -305,7 +351,7 @@ public class blade : MonoBehaviour
         rb.gravityScale = 0.3f;
         rb.velocity = Vector2.zero;
         rb.AddForce(Vector2.down * 5f, ForceMode2D.Impulse);
-        go.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+        go.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
         Destroy(go, 2f);
     }
 

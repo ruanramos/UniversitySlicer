@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class SpecialsController : MonoBehaviour
 {
@@ -12,37 +13,39 @@ public class SpecialsController : MonoBehaviour
     }
 
     public static Special SpecialSelected;
+    public static int RotateSpecial;
     
     // Start is called before the first frame update
     private void Start()
     {
         SpecialSelected = Special.Enel;
+        RotateSpecial = 1;
     }
 
     // Update is called once per frame
     private void Update()
     {
-        SpecialsInput();
-
-        if (Input.GetKeyDown(KeyCode.R))
+        if (RotateSpecial > 3)
         {
-            PlayerPrefs.SetInt("HS", 0);
+            RotateSpecial = RotateSpecial % 3;
         }
+        
+        SpecialsInput();
     }
 
     private static void SpecialsInput()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        switch (RotateSpecial)
         {
-            SpecialSelected = Special.Enel;
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            SpecialSelected = Special.Frozen;
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            SpecialSelected = Special.David;
+            case 1:
+                SpecialSelected = Special.Enel;
+                break;
+            case 2:
+                SpecialSelected = Special.Frozen;
+                break;
+            case 3:
+                SpecialSelected = Special.David;
+                break;
         }
     }
 }

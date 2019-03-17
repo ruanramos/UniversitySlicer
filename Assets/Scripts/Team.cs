@@ -5,7 +5,7 @@ using UnityEngine;
 public class Team : MonoBehaviour
 {
     private Rigidbody2D _rb;
-    private const float StartForce = 15f;
+    private const float StartForce = 20f;
     
     private void Start()
     {

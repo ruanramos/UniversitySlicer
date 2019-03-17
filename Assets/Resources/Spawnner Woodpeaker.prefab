@@ -637,7 +637,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcc8310c21c4a2e4c91d96f0e648af73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpawnnerActive: 1
   Woodpeaker: {fileID: 7461262032637382865, guid: ef0076217efd1f740a63f911d81a7ba0,
     type: 3}
   Pidgeon: {fileID: 4217534526226022172, guid: fe9b89d10663b654e8a7dfee2aeba5e4, type: 3}
@@ -667,6 +666,20 @@ MonoBehaviour:
   - {fileID: 3480594388959089929}
   - {fileID: 3480594388242174852}
   SpawnPointsPidgeons:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

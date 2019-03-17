@@ -32,6 +32,7 @@ public class SceneController : MonoBehaviour
             _score = PlayerPrefs.GetInt("Hs", 0);
             Text.GetComponent<TextMeshProUGUI>().text = "Você ganhou e não fez mais que sua obrigação contra a UCW, parabéns pelo novo highscore \n\nScore: " + _score;
             Image.GetComponent<Image>().sprite = WinImage;
+            Image.GetComponent<RectTransform>().offsetMax = new Vector2(Image.GetComponent<RectTransform>().offsetMax.x, -10f);
             audioSource.clip = WinSound;
         }
         else
@@ -44,10 +45,10 @@ public class SceneController : MonoBehaviour
         audioSource.Play();
     }
 
-    public void Load(string name)
+    public void Load(string s)
     {
         PlayerPrefs.SetInt("Score", 0);
-        SceneManager.LoadScene(name);
+        SceneManager.LoadScene(s);
     }
 
     public void Quit()

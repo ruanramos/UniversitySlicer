@@ -8,6 +8,7 @@ TagManager:
   - Spear
   - pidgeon
   - unilol
+  - notCollide
   layers:
   - Default
   - TransparentFX
@@ -22,7 +23,7 @@ TagManager:
   - blade
   - Pidgeon
   - unilol
-  - 
+  - notCollide
   - 
   - 
   - 
